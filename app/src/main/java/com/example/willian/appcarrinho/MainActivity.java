@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     //private Switch botaoPareado // trocar o botao por um switch
 
     private BluetoothAdapter meuBT = null;
-    public Set Pareados = null;
+    public Set<BluetoothDevice> Pareados = null;
 
 
     BroadcastReceiver btState = new BroadcastReceiver() {
@@ -137,55 +137,51 @@ public class MainActivity extends AppCompatActivity {
                      * An Intent is called to resquest to the user permission to Activate the Bluetooth Device. This is done to
                      * the user can Activate the Bluetooth without exiting the application.
                      */
-                    //Intent LigaBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    //startActivityForResult(LigaBT,1);
+                    Intent LigaBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(LigaBT,1);
 
-                    String buttonChange = BluetoothAdapter.ACTION_STATE_CHANGED;
-                    String actionReq = BluetoothAdapter.ACTION_REQUEST_ENABLE;
-                    IntentFilter filter = new IntentFilter(buttonChange);
-                    registerReceiver(btState,filter);
-                    startActivityForResult(new Intent(actionReq),0);
+                    String nowState = BluetoothAdapter.EXTRA_STATE;
+                    int state = LigaBT.getIntExtra(nowState, -1);
+
+                    /**
+                     * If the Device was activated correctly, then another function will be called.
+                     */
+                    if(state == BluetoothAdapter.STATE_ON) {
+                        Toast.makeText(MainActivity.this, "Bluetooth is ON! :)", Toast.LENGTH_SHORT).show();
+                        /**
+                         * Next, call the function to Pair the devices.
+                         */
+                        //devicesPaired();
+                    }
+
+//                    String buttonChange = BluetoothAdapter.ACTION_STATE_CHANGED;
+//                    String actionReq = BluetoothAdapter.ACTION_REQUEST_ENABLE;
+//                    IntentFilter filter = new IntentFilter(buttonChange);
+//                    registerReceiver(btState,filter);
+//                    startActivityForResult(new Intent(actionReq),0);
+
+
                     //devicesPaired();
-                }else
+                }
+                /**
+                 * The Bluetooth device is already Active.
+                 */
+                if(meuBT.isEnabled())
                 {
                     String address = meuBT.getAddress();
                     String name = meuBT.getName();
                     String statusText = address + ':' + name + '\n';
-                    textTop.setText(statusText);
+                    textTop.setText("Connected!");
+
+                    devicesPaired();
                 }
 
 
+                //Toast.makeText(MainActivity.this, "Fim\n", Toast.LENGTH_SHORT).show();
+                //if(meuBT.isEnabled()) devicesPaired();
+
             }
         });
-    }
-
-    private void devicesPaired()
-    {
-        Pareados = meuBT.getBondedDevices();
-        ArrayList lista = new ArrayList();
-
-        Toast.makeText(MainActivity.this, "HAHAHA -> Chegou aqui pourra\n", Toast.LENGTH_SHORT).show();
-
-        //meuBT.startDiscovery();
-
-//        if(Pareados.size() > 0)
-//        {
-//
-//            //for(BluetoothDevice i : Pareados)
-//            for(BluetoothDevice i : filha da puta Pareados)
-//            {
-//                lista.add(i.getName() + "\n" + i.getAddress());
-//                // Nome do disopsitivo e endereco dele
-//            }
-//
-//        }
-//        else
-//        {
-//            Toast.makeText(getApplicationContext(), "Nenhum modulo bluetooth foi encontrado!",Toast.LENGTH_LONG).show();
-//        }
-
-
-
     }
 
 //    private void devicesPaired()
@@ -193,24 +189,54 @@ public class MainActivity extends AppCompatActivity {
 //        Pareados = meuBT.getBondedDevices();
 //        ArrayList lista = new ArrayList();
 //
-//        if(Pareados.size() > 0)
-//        {
+//        Toast.makeText(MainActivity.this, "HAHAHA -> Chegou aqui\n", Toast.LENGTH_SHORT).show();
 //
-//            for(BluetoothDevice i : Pareados)
-//            {
-//                lista.add(i.getName() + "\n" + i.getAddress());
-//                // Nome do disopsitivo e endereco dele
-//            }
+//        //meuBT.startDiscovery();
 //
-//        }
-//        else
-//        {
-//            Toast.makeText(getApplicationContext(), "Nenhum modulo bluetooth foi encontrado!",Toast.LENGTH_LONG).show();
-//        }
+////        if(Pareados.size() > 0)
+////        {
+////
+////            //for(BluetoothDevice i : Pareados)
+////            for(BluetoothDevice i : filha da puta Pareados)
+////            {
+////                lista.add(i.getName() + "\n" + i.getAddress());
+////                // Nome do disopsitivo e endereco dele
+////            }
+////
+////        }
+////        else
+////        {
+////            Toast.makeText(getApplicationContext(), "Nenhum modulo bluetooth foi encontrado!",Toast.LENGTH_LONG).show();
+////        }
 //
 //
 //
 //    }
+
+    private void devicesPaired()
+    {
+        Pareados = meuBT.getBondedDevices();
+        ArrayList lista = new ArrayList();
+
+        if(Pareados.size() > 0)
+        {
+
+            for(BluetoothDevice i : Pareados)
+            {
+                lista.add(i.getName() + "\n" + i.getAddress());
+                // Nome do disopsitivo e endereco dele
+            }
+
+
+        }
+        else
+        {
+            Toast.makeText(getApplicationContext(), "Nenhum modulo bluetooth foi encontrado!",Toast.LENGTH_LONG).show();
+        }
+
+
+
+    }
 
 
 

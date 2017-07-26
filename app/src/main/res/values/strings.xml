@@ -3,4 +3,6 @@
     <string name="Conectado">Conectado!</string>
     <string name="naoConectado">Não foi possível se conectar!</string>
     <string name="comandoEnviado">O comando foi enviado com sucesso!</string>
+    <string name="Connect">Connect</string>
+    <string name="Disconnect">Disconnect</string>
 </resources>
