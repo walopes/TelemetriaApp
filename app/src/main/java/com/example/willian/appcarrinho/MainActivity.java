@@ -41,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private final boolean EnglishLang = true;
 
-    public Button botaoPareado;
+    public Button botaoPareado, botaoDev;
     public ListView listaDev;
     public TextView textTop;
 
@@ -70,7 +70,8 @@ public class MainActivity extends AppCompatActivity {
                      * The Bluetooth is begin turnig on. A message will send by the Toast.
                      */
                     case (BluetoothAdapter.STATE_TURNING_ON): {
-                        newToast = "Bluetooth is turning on! :)";
+                        if(EnglishLang) newToast = "Bluetooth is turning on!)";
+                        else newToast = "Bluetooth está sendo ligado!";
                         Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
                         break;
                     }
@@ -78,7 +79,8 @@ public class MainActivity extends AppCompatActivity {
                      * The Bluetooth is begin turnig off. A message will send by the Toast.
                      */
                     case (BluetoothAdapter.STATE_TURNING_OFF): {
-                        newToast = "Bluetooth is turning off! :(";
+                        if(EnglishLang) newToast = "Bluetooth is turning off!";
+                        else newToast = "Bluetooth está sendo desligado!";
                         Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
                         break;
                     }
@@ -87,26 +89,25 @@ public class MainActivity extends AppCompatActivity {
                      */
                     case (BluetoothAdapter.STATE_ON): {
                         // TESTE
-                        String address = meuBT.getAddress();
-                        String name = meuBT.getName();
-                        String statusText = address + ':' + name + '\n';
-                        textTop.setText(statusText);
+//                        String address = meuBT.getAddress();
+//                        String name = meuBT.getName();
+//                        String statusText = address + ':' + name + '\n';
+//                        textTop.setText(statusText);
                         // TESTE
-                        newToast = "Bluetooth is ON! :)";
-                        Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
+                        if(EnglishLang) textTop.setText("Bluetooth Adapter is ON! Press the button to turn it off.");
+                        else textTop.setText("Adaptador Bluetoot está LIGADO! Pressione o botão para desligar.");
                         /**
                          * Next, call the function to Pair the devices.
                          */
-                        devicesPaired();
+                        //devicesPaired();
                         break;
                     }
                     /**
-                     * The Bluetooth is off. The application will be closed.
+                     * The Bluetooth is off.
                      */
                     case (BluetoothAdapter.STATE_OFF): {
-                        newToast = "Bluetooth is OFF! Program will shut down in a few...";
-                        Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
-                        finish();
+                        if(EnglishLang) textTop.setText("Bluetooth is OFF! Press the button to turn it on.");
+                        else textTop.setText("Adaptador Bluetooth está DESLIGADO! Pressionne o botão para ligar.");
                         break;
                     }
 
@@ -175,12 +176,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         // VER MELHOR ESSA PARADA DE oNDESTROY
-//    @Override
-//    protected void onDestroy(Bundle savedInstanceState) {
-//        super.onDestroy();
-//        unregisterReceiver(btState);
-//
-//    }
+        //@Override
+    protected void onDestroy(Bundle savedInstanceState) {
+        super.onDestroy();
+        unregisterReceiver(btState);
+    }
 
 
 
@@ -196,11 +196,12 @@ public class MainActivity extends AppCompatActivity {
     private void beginApp()
     {
         botaoPareado = (Button)findViewById(R.id.botaoIniciar);
+        botaoDev = (Button)findViewById(R.id.botaoConectar);
         listaDev = (ListView)findViewById(R.id.list_view);
         textTop = (TextView) findViewById(R.id.txt1);
 
-        if(EnglishLang == true) botaoPareado.setText("Turn On");
-        else botaoPareado.setText("Ligar");
+        if(EnglishLang == true) botaoPareado.setText("Turn On/ Off");
+        else botaoPareado.setText("Ligar/ Desligar");
 
         //// REVER ESSE CASO
         /**
@@ -238,6 +239,7 @@ public class MainActivity extends AppCompatActivity {
                      * An Intent is called to resquest to the user permission to Activate the Bluetooth Device. This is done to
                      * the user can Activate the Bluetooth without exiting the application.
                      */
+
                     Intent LigaBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                     //startActivityForResult(LigaBT,1);
                     startActivity(LigaBT);

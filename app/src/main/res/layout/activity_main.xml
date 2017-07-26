@@ -10,16 +10,22 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/Connect"
         android:onClick="conectar"
         android:gravity="center_horizontal"
         android:id="@+id/botaoIniciar"
         android:layout_gravity="center_horizontal" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="parear"
+        android:id="@+id/botaoConectar"
+        android:layout_gravity="center_horizontal"
+        />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="30dp"
-        android:text="Connecting to Crazy Frog Bluetooth ..."
         android:id="@+id/txt1"
         />
 
