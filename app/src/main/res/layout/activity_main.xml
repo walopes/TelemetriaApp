@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:tag="Tela1"
+    >
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:text="Connecting to Crazy Frog Bluetooth ..."
+        android:gravity="center_horizontal"
+        android:id="@+id/txt1"
+    />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/Texto1"
+        android:hint="SENHA"
+        android:clickable="false"
+        android:layout_below="@+id/txt1"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Iniciar"
+        android:onClick="conectar"
+        android:id="@+id/botaoIniciar"
+        android:layout_alignBottom="@+id/Texto1"
+        android:layout_toEndOf="@+id/Texto1" />
+
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/botaoIniciar"
+        android:layout_alignParentStart="true"
+        android:id="@+id/list_view" >
+    </ListView>
+
+    <Switch
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Conexões Bluetooth"
+        android:id="@+id/switch1"
+        android:onClick="listarDispositivos"
+        android:layout_alignBottom="@+id/botaoIniciar"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="44dp" />
+
+
+</RelativeLayout>

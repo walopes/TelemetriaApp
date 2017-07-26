@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">AppTelemetria</string>
+    <string name="Conectado">Conectado!</string>
+    <string name="naoConectado">Não foi possível se conectar!</string>
+    <string name="comandoEnviado">O comando foi enviado com sucesso!</string>
+</resources>
