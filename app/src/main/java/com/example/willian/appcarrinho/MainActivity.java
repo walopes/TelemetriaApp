@@ -1,5 +1,11 @@
 package com.example.willian.appcarrinho;
 
+/**
+ * This code will be commented both in English and Portuguese, due to be a graduation program.
+ * _____
+ * Este código será comentado tanto em Português quanto Inglês, devido a ser um trabalho de graduação.
+ */
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
@@ -24,93 +30,184 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 //////////////
 
-
-// Site: http://www.instructables.com/id/Android-Bluetooth-Control-LED-Part-2/
-// https://developer.android.com/training/basics/firstapp/starting-activity.html
-
 public class MainActivity extends AppCompatActivity {
+
+    /**
+     * The variable EnglishLang is responsible to set the Languages of the system. If this variable is true, all messages and
+     * texts are in English; otherwise, all of the are in Portuguese.
+     * _____
+     * A variavel EnglishLang é responsável pela linguagem do sistema. Se esta for verdadeira, então todas as mensagens e
+     * textos estarão em Inglês; caso contrário, estarão em Português.
+     */
+    private final boolean EnglishLang = true;
 
     public Button botaoPareado;
     public ListView listaDev;
     public TextView textTop;
-    //private Switch botaoPareado // trocar o botao por um switch
 
     private BluetoothAdapter meuBT = null;
     public Set<BluetoothDevice> Pareados = null;
 
 
-    BroadcastReceiver btState = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String previousState = BluetoothAdapter.EXTRA_PREVIOUS_STATE;
-            String nowState = BluetoothAdapter.EXTRA_STATE;
-            int state = intent.getIntExtra(nowState, -1);
-            String newToast = "";
 
-            switch (state) {
-                /**
-                 * The Bluetooth is begin turnig on. A message will send by the Toast.
-                 */
-                case (BluetoothAdapter.STATE_TURNING_ON): {
-                    newToast = "Bluetooth is turning on! :)";
-                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
-                    break;
-                }
-                /**
-                 * The Bluetooth is begin turnig off. A message will send by the Toast.
-                 */
-                case (BluetoothAdapter.STATE_TURNING_OFF): {
-                    newToast = "Bluetooth is turning off! :(";
-                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
-                    break;
-                }
-                /**
-                 * The Bluetooth is activated. The program will begin.
-                 */
-                case (BluetoothAdapter.STATE_ON): {
-                    // TESTE
-                    String address = meuBT.getAddress();
-                    String name = meuBT.getName();
-                    String statusText = address + ':' + name + '\n';
-                    textTop.setText(statusText);
-                    // TESTE
-                    newToast = "Bluetooth is ON! :)";
-                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
+
+    // Create a BroadcastReceiver for ACTION_FOUND
+    public final BroadcastReceiver btState = new BroadcastReceiver() {
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            // When discovery finds a device
+//            if (BluetoothDevice.ACTION_FOUND.equals(action)) {
+//                // Get the BluetoothDevice object from the Intent
+//                BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//                // Add the name and address to an array adapter to show in a ListView
+//                Pareados.add(device.getName() + "\n" + device.getAddress());
+//            }
+            if (action.equals(meuBT.ACTION_STATE_CHANGED)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                String newToast;
+                switch (state) {
                     /**
-                     * Next, call the function to Pair the devices.
+                     * The Bluetooth is begin turnig on. A message will send by the Toast.
                      */
-                    devicesPaired();
-                    break;
-                }
-                /**
-                 * The Bluetooth is off. The application will be closed.
-                 */
-                case (BluetoothAdapter.STATE_OFF): {
-                    newToast = "Bluetooth is OFF! Program will shut down in a few...";
-                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
-                    finish();
-                    break;
+                    case (BluetoothAdapter.STATE_TURNING_ON): {
+                        newToast = "Bluetooth is turning on! :)";
+                        Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    /**
+                     * The Bluetooth is begin turnig off. A message will send by the Toast.
+                     */
+                    case (BluetoothAdapter.STATE_TURNING_OFF): {
+                        newToast = "Bluetooth is turning off! :(";
+                        Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
+                        break;
+                    }
+                    /**
+                     * The Bluetooth is activated. The program will begin.
+                     */
+                    case (BluetoothAdapter.STATE_ON): {
+                        // TESTE
+                        String address = meuBT.getAddress();
+                        String name = meuBT.getName();
+                        String statusText = address + ':' + name + '\n';
+                        textTop.setText(statusText);
+                        // TESTE
+                        newToast = "Bluetooth is ON! :)";
+                        Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
+                        /**
+                         * Next, call the function to Pair the devices.
+                         */
+                        devicesPaired();
+                        break;
+                    }
+                    /**
+                     * The Bluetooth is off. The application will be closed.
+                     */
+                    case (BluetoothAdapter.STATE_OFF): {
+                        newToast = "Bluetooth is OFF! Program will shut down in a few...";
+                        Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
+                        finish();
+                        break;
+                    }
+
                 }
             }
         }
     };
 
 
-    @Override
+    // STAND BY
+//    BroadcastReceiver btState = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//            String previousState = BluetoothAdapter.EXTRA_PREVIOUS_STATE;
+//            String nowState = BluetoothAdapter.EXTRA_STATE;
+//            int state = intent.getIntExtra(nowState, -1);
+//            String newToast = "";
+//
+//            switch (state) {
+//                /**
+//                 * The Bluetooth is begin turnig on. A message will send by the Toast.
+//                 */
+//                case (BluetoothAdapter.STATE_TURNING_ON): {
+//                    newToast = "Bluetooth is turning on! :)";
+//                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
+//                    break;
+//                }
+//                /**
+//                 * The Bluetooth is begin turnig off. A message will send by the Toast.
+//                 */
+//                case (BluetoothAdapter.STATE_TURNING_OFF): {
+//                    newToast = "Bluetooth is turning off! :(";
+//                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
+//                    break;
+//                }
+//                /**
+//                 * The Bluetooth is activated. The program will begin.
+//                 */
+//                case (BluetoothAdapter.STATE_ON): {
+//                    // TESTE
+//                    String address = meuBT.getAddress();
+//                    String name = meuBT.getName();
+//                    String statusText = address + ':' + name + '\n';
+//                    textTop.setText(statusText);
+//                    // TESTE
+//                    newToast = "Bluetooth is ON! :)";
+//                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
+//                    /**
+//                     * Next, call the function to Pair the devices.
+//                     */
+//                    devicesPaired();
+//                    break;
+//                }
+//                /**
+//                 * The Bluetooth is off. The application will be closed.
+//                 */
+//                case (BluetoothAdapter.STATE_OFF): {
+//                    newToast = "Bluetooth is OFF! Program will shut down in a few...";
+//                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
+//                    finish();
+//                    break;
+//                }
+//            }
+//        }
+//    };
+
+
+        // VER MELHOR ESSA PARADA DE oNDESTROY
+//    @Override
+//    protected void onDestroy(Bundle savedInstanceState) {
+//        super.onDestroy();
+//        unregisterReceiver(btState);
+//
+//    }
+
+
+
+        @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         beginApp();
     }
 
+
+
     private void beginApp()
     {
         botaoPareado = (Button)findViewById(R.id.botaoIniciar);
         listaDev = (ListView)findViewById(R.id.list_view);
         textTop = (TextView) findViewById(R.id.txt1);
+
+        if(EnglishLang == true) botaoPareado.setText("Turn On");
+        else botaoPareado.setText("Ligar");
+
+        //// REVER ESSE CASO
         /**
          * If the button botaoPareado is clicked, then the program will check if the Bluetooth is Active and begin
-         * the search for new devices.
+         * the search for new devices; or it will disable the Bluetooth, if it was turned on.
+         * _____
+         * Se o botão botaoPareado é clicado, então o programa verificará se o Bluetooth está Ativo e começará a procura por
          */
         botaoPareado.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -118,6 +215,8 @@ public class MainActivity extends AppCompatActivity {
             {
                 /**
                  * The variable meuBT receive the handle to the Bluetooth adapter of the Android Device.
+                 * _____
+                 * A variável meuBT recebe o handle do Adaptador de Bluetooth do dispositivo Android.
                  */
                 meuBT = BluetoothAdapter.getDefaultAdapter();
                 /**
@@ -130,29 +229,39 @@ public class MainActivity extends AppCompatActivity {
                 }
                 /**
                  * If there is a Active Bluetooth and it is not enable, the is requested to enable the Bluetooth Adapter.
+                 * _____
+                 * Se há um dispositivo Bluetooth ativa mas não habilitado, então é requisitado a habilitação deste adaptador.
                  */
-                else if(!meuBT.isEnabled())
+                if(!meuBT.isEnabled())
                 {
                     /**
                      * An Intent is called to resquest to the user permission to Activate the Bluetooth Device. This is done to
                      * the user can Activate the Bluetooth without exiting the application.
                      */
                     Intent LigaBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-                    startActivityForResult(LigaBT,1);
-
-                    String nowState = BluetoothAdapter.EXTRA_STATE;
-                    int state = LigaBT.getIntExtra(nowState, -1);
+                    //startActivityForResult(LigaBT,1);
+                    startActivity(LigaBT);
 
                     /**
-                     * If the Device was activated correctly, then another function will be called.
+                     * The IntentFilter is used to checking changes on the Bluetooth state.
+                     * _____
+                     * O IntentFilter é utilizado para monitorar mudanças no estado do Bluetooth.
                      */
-                    if(state == BluetoothAdapter.STATE_ON) {
-                        Toast.makeText(MainActivity.this, "Bluetooth is ON! :)", Toast.LENGTH_SHORT).show();
-                        /**
-                         * Next, call the function to Pair the devices.
-                         */
-                        //devicesPaired();
-                    }
+                    IntentFilter IntF = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+                    registerReceiver(btState,IntF);
+//                    String nowState = BluetoothAdapter.EXTRA_STATE;
+//                    int state = LigaBT.getIntExtra(nowState, -1);
+//
+//                    /**
+//                     * If the Device was activated correctly, then another function will be called.
+//                     */
+//                    if(state == BluetoothAdapter.STATE_ON) {
+//                        Toast.makeText(MainActivity.this, "Bluetooth is ON! :)", Toast.LENGTH_SHORT).show();
+//                        /**
+//                         * Next, call the function to Pair the devices.
+//                         */
+//                        //devicesPaired();
+//                    }
 
 //                    String buttonChange = BluetoothAdapter.ACTION_STATE_CHANGED;
 //                    String actionReq = BluetoothAdapter.ACTION_REQUEST_ENABLE;
@@ -164,17 +273,32 @@ public class MainActivity extends AppCompatActivity {
                     //devicesPaired();
                 }
                 /**
-                 * The Bluetooth device is already Active.
+                 * If the Bluetooth is enabled, then it will turn it off.
+                 * _____
+                 * Se o Bluetooth está habilitado, então isso irá desativá-lo.
                  */
                 if(meuBT.isEnabled())
                 {
-                    String address = meuBT.getAddress();
-                    String name = meuBT.getName();
-                    String statusText = address + ':' + name + '\n';
-                    textTop.setText("Connected!");
+                    meuBT.disable();
 
-                    devicesPaired();
+                    IntentFilter IntF = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+                    registerReceiver(btState,IntF);
                 }
+
+
+
+                /**
+                 * The Bluetooth device is already Active.
+                 */
+//                if(meuBT.isEnabled())
+//                {
+//                    String address = meuBT.getAddress();
+//                    String name = meuBT.getName();
+//                    String statusText = address + ':' + name + '\n';
+//                    textTop.setText("Connected!");
+//
+//                    devicesPaired();
+//                }
 
 
                 //Toast.makeText(MainActivity.this, "Fim\n", Toast.LENGTH_SHORT).show();
@@ -215,24 +339,27 @@ public class MainActivity extends AppCompatActivity {
 
     private void devicesPaired()
     {
-        Pareados = meuBT.getBondedDevices();
-        ArrayList lista = new ArrayList();
 
-        if(Pareados.size() > 0)
-        {
+        textTop.setText("AEEEHOOOOOOOOOOOO");
 
-            for(BluetoothDevice i : Pareados)
-            {
-                lista.add(i.getName() + "\n" + i.getAddress());
-                // Nome do disopsitivo e endereco dele
-            }
-
-
-        }
-        else
-        {
-            Toast.makeText(getApplicationContext(), "Nenhum modulo bluetooth foi encontrado!",Toast.LENGTH_LONG).show();
-        }
+//        Pareados = meuBT.getBondedDevices();
+//        ArrayList lista = new ArrayList();
+//
+//        if(Pareados.size() > 0)
+//        {
+//
+//            for(BluetoothDevice i : Pareados)
+//            {
+//                lista.add(i.getName() + "\n" + i.getAddress());
+//                // Nome do disopsitivo e endereco dele
+//            }
+//
+//
+//        }
+//        else
+//        {
+//            Toast.makeText(getApplicationContext(), "Nenhum modulo bluetooth foi encontrado!",Toast.LENGTH_LONG).show();
+//        }
 
 
 
