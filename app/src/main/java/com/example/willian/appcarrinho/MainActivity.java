@@ -9,15 +9,18 @@ package com.example.willian.appcarrinho;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.support.annotation.IdRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 // novo abaixo
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.jar.Manifest;
 
 import android.widget.Switch;
 import android.widget.Toast;
@@ -39,11 +42,17 @@ public class MainActivity extends AppCompatActivity {
      * A variavel EnglishLang é responsável pela linguagem do sistema. Se esta for verdadeira, então todas as mensagens e
      * textos estarão em Inglês; caso contrário, estarão em Português.
      */
+
+    /**
+     * VARIABLES OF THE PROGRAM
+     */
     private final boolean EnglishLang = true;
 
     public Button botaoPareado, botaoDev;
     public ListView listaDev;
     public TextView textTop;
+    public ArrayList<BluetoothDevice> devBT = new ArrayList<>();
+    public DeviceList mDev;
 
     private BluetoothAdapter meuBT = null;
     public Set<BluetoothDevice> Pareados = null;
@@ -116,67 +125,29 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * Broadcast receiver para listar os dispostivos ainda não pareados
+     */
+    private BroadcastReceiver pairDev = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
 
-    // STAND BY
-//    BroadcastReceiver btState = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-//            String previousState = BluetoothAdapter.EXTRA_PREVIOUS_STATE;
-//            String nowState = BluetoothAdapter.EXTRA_STATE;
-//            int state = intent.getIntExtra(nowState, -1);
-//            String newToast = "";
-//
-//            switch (state) {
-//                /**
-//                 * The Bluetooth is begin turnig on. A message will send by the Toast.
-//                 */
-//                case (BluetoothAdapter.STATE_TURNING_ON): {
-//                    newToast = "Bluetooth is turning on! :)";
-//                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
-//                    break;
-//                }
-//                /**
-//                 * The Bluetooth is begin turnig off. A message will send by the Toast.
-//                 */
-//                case (BluetoothAdapter.STATE_TURNING_OFF): {
-//                    newToast = "Bluetooth is turning off! :(";
-//                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
-//                    break;
-//                }
-//                /**
-//                 * The Bluetooth is activated. The program will begin.
-//                 */
-//                case (BluetoothAdapter.STATE_ON): {
-//                    // TESTE
-//                    String address = meuBT.getAddress();
-//                    String name = meuBT.getName();
-//                    String statusText = address + ':' + name + '\n';
-//                    textTop.setText(statusText);
-//                    // TESTE
-//                    newToast = "Bluetooth is ON! :)";
-//                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
-//                    /**
-//                     * Next, call the function to Pair the devices.
-//                     */
-//                    devicesPaired();
-//                    break;
-//                }
-//                /**
-//                 * The Bluetooth is off. The application will be closed.
-//                 */
-//                case (BluetoothAdapter.STATE_OFF): {
-//                    newToast = "Bluetooth is OFF! Program will shut down in a few...";
-//                    Toast.makeText(MainActivity.this, newToast, Toast.LENGTH_SHORT).show();
-//                    finish();
-//                    break;
-//                }
-//            }
-//        }
-//    };
+            final String action = intent.getAction();
+            //Log.d(TAG)
+            if(action.equals(BluetoothDevice.ACTION_FOUND))
+            {
+                BluetoothDevice disp = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+                devBT.add(disp);
+                mDev = new DeviceList(context,R.layout.activity_comandos,devBT);
+                listaDev.setAdapter(mDev);
+            }
+
+        }
+    };
 
 
-        // VER MELHOR ESSA PARADA DE oNDESTROY
-        //@Override
+    // VER MELHOR ESSA PARADA DE oNDESTROY
+    //@Override
     protected void onDestroy(Bundle savedInstanceState) {
         super.onDestroy();
         unregisterReceiver(btState);
@@ -184,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        @Override
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
@@ -338,6 +309,53 @@ public class MainActivity extends AppCompatActivity {
 //
 //
 //    }
+
+    public void parear(View v)
+    {
+
+        if(meuBT.isDiscovering())
+        {
+            meuBT.cancelDiscovery();
+
+            // Check for permissions in manifest
+            checkPermission();
+
+            meuBT.startDiscovery();
+            IntentFilter findInt = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            registerReceiver(pairDev,findInt);
+        }
+        if(!meuBT.isDiscovering())
+        {
+            checkPermission();
+
+            meuBT.startDiscovery();
+            IntentFilter findInt = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+            registerReceiver(pairDev,findInt);
+        }
+
+
+        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+        startActivity(discoverableIntent);
+    }
+
+    private void checkPermission()
+    {
+        // Se a versão do dispositivo é superior à 5.0 (Lollipop), é necessário adicionar permissões
+        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
+        {
+            int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
+            permissionCheck += this.checkSelfPermission("Manifest.permission.ACCESS_COARSE_LOCATION");
+            if(permissionCheck != 0) {
+                // VER MELHOR ESSE requestPermissions
+                this.requestPermissions(new String[]{
+                        android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION
+                    },1001);
+            }
+        }
+
+    }
+
 
     private void devicesPaired()
     {
