@@ -43,10 +43,13 @@ public class MainActivity extends AppCompatActivity {
      * textos estarão em Inglês; caso contrário, estarão em Português.
      */
 
+    private static final int REQUEST_CONNECTION = 2;
+
     /**
      * VARIABLES OF THE PROGRAM
      */
     private final boolean EnglishLang = true;
+    private boolean connection = false;
 
     public Button botaoPareado, botaoDev;
     public ListView listaDev;
@@ -128,22 +131,22 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Broadcast receiver para listar os dispostivos ainda não pareados
      */
-    private BroadcastReceiver pairDev = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-
-            final String action = intent.getAction();
-            //Log.d(TAG)
-            if(action.equals(BluetoothDevice.ACTION_FOUND))
-            {
-                BluetoothDevice disp = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
-                devBT.add(disp);
-                mDev = new DeviceList(context,R.layout.activity_comandos,devBT);
-                listaDev.setAdapter(mDev);
-            }
-
-        }
-    };
+//    private BroadcastReceiver pairDev = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+//
+//            final String action = intent.getAction();
+//            //Log.d(TAG)
+//            if(action.equals(BluetoothDevice.ACTION_FOUND))
+//            {
+//                BluetoothDevice disp = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
+//                devBT.add(disp);
+//                mDev = new DeviceList(context,R.layout.activity_comandos,devBT);
+//                listaDev.setAdapter(mDev);
+//            }
+//
+//        }
+//    };
 
 
     // VER MELHOR ESSA PARADA DE oNDESTROY
@@ -166,13 +169,20 @@ public class MainActivity extends AppCompatActivity {
 
     private void beginApp()
     {
+        // Association of the variables with the respectives widgets
         botaoPareado = (Button)findViewById(R.id.botaoIniciar);
         botaoDev = (Button)findViewById(R.id.botaoConectar);
         listaDev = (ListView)findViewById(R.id.list_view);
         textTop = (TextView) findViewById(R.id.txt1);
 
-        if(EnglishLang == true) botaoPareado.setText("Turn On/ Off");
-        else botaoPareado.setText("Ligar/ Desligar");
+        if(EnglishLang == true){
+            botaoPareado.setText("Turn On/ Off");
+            botaoDev.setText("Connect/ Disconnect");
+        }
+        else{
+            botaoPareado.setText("Ligar/ Desligar");
+            botaoDev.setText("Conectar/ Desconectar");
+        }
 
         //// REVER ESSE CASO
         /**
@@ -257,26 +267,22 @@ public class MainActivity extends AppCompatActivity {
                     IntentFilter IntF = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
                     registerReceiver(btState,IntF);
                 }
+            }
+        });
 
 
+        // Quando der tempo-> Fazer o Controle das mudanças com o IntentFilter
+        botaoDev.setOnClickListener(new View.OnClickListener(){
 
-                /**
-                 * The Bluetooth device is already Active.
-                 */
-//                if(meuBT.isEnabled())
-//                {
-//                    String address = meuBT.getAddress();
-//                    String name = meuBT.getName();
-//                    String statusText = address + ':' + name + '\n';
-//                    textTop.setText("Connected!");
-//
-//                    devicesPaired();
-//                }
+            @Override
+            public void onClick(View v) {
 
-
-                //Toast.makeText(MainActivity.this, "Fim\n", Toast.LENGTH_SHORT).show();
-                //if(meuBT.isEnabled()) devicesPaired();
-
+                if(connection){ // If the device is already connected -> It will disconnect
+                    ;
+                }else{ // If no connection has been done -> It will connect
+                    Intent openList = new Intent(MainActivity.this,DeviceList.class);
+                    startActivityForResult(openList,REQUEST_CONNECTION);
+                }
             }
         });
     }
@@ -310,34 +316,34 @@ public class MainActivity extends AppCompatActivity {
 //
 //    }
 
-    public void parear(View v)
-    {
-
-        if(meuBT.isDiscovering())
-        {
-            meuBT.cancelDiscovery();
-
-            // Check for permissions in manifest
-            checkPermission();
-
-            meuBT.startDiscovery();
-            IntentFilter findInt = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(pairDev,findInt);
-        }
-        if(!meuBT.isDiscovering())
-        {
-            checkPermission();
-
-            meuBT.startDiscovery();
-            IntentFilter findInt = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-            registerReceiver(pairDev,findInt);
-        }
-
-
-        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-        startActivity(discoverableIntent);
-    }
+//    public void parear(View v)
+//    {
+//
+//        if(meuBT.isDiscovering())
+//        {
+//            meuBT.cancelDiscovery();
+//
+//            // Check for permissions in manifest
+//            checkPermission();
+//
+//            meuBT.startDiscovery();
+//            IntentFilter findInt = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+//            registerReceiver(pairDev,findInt);
+//        }
+//        if(!meuBT.isDiscovering())
+//        {
+//            checkPermission();
+//
+//            meuBT.startDiscovery();
+//            IntentFilter findInt = new IntentFilter(BluetoothDevice.ACTION_FOUND);
+//            registerReceiver(pairDev,findInt);
+//        }
+//
+//
+//        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
+//        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
+//        startActivity(discoverableIntent);
+//    }
 
     private void checkPermission()
     {
