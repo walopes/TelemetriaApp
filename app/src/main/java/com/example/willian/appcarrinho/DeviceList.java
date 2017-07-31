@@ -4,12 +4,15 @@ import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Set;
@@ -20,7 +23,7 @@ import java.util.Set;
 public class DeviceList extends ListActivity{
 
     private BluetoothAdapter meuBT;
-    static String MAC_ADDRESS = "";
+    static String MAC_ADDRESS = "LALALALABunga";
     Set<BluetoothDevice> SetBT;
     ArrayAdapter<String> ArrayBT;
 
@@ -42,39 +45,22 @@ public class DeviceList extends ListActivity{
             }
             setListAdapter(ArrayBT);
         }
-
-
     }
 
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        super.onListItemClick(l, v, position, id);
 
+        String info = ((TextView) v).getText().toString();
+        //Toast.makeText(getApplicationContext(),"Info: " + info, Toast.LENGTH_LONG).show();
 
-//    private LayoutInflater layInf;
-//    private ArrayList<BluetoothDevice> listaBT;
-//    private int id;
-//
-//    public DeviceList(Context context, int res, ArrayList<BluetoothDevice> disp)
-//    {
-//        super(context,res,disp);
-//        this.listaBT = disp;
-//        layInf = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        id = res;
-//    }
-//
-//    public View getView(int position, View convertView, ViewGroup parent)
-//    {
-//        convertView = layInf.inflate(id,null);
-//        BluetoothDevice device = listaBT.get(position);
-//
-//        if(device != null)
-//        {
-//            TextView devName = (TextView) convertView.findViewById(R.id.DevName);
-//            TextView devMAC = (TextView) convertView.findViewById(R.id.DevMAC);
-//
-//            if(devName != null) devName.setText(device.getName());
-//            if(devMAC != null) devName.setText(device.getAddress());
-//        }
-//
-//        return convertView;
-//    }
+        String endMac = info.substring(info.length() - 17); //O '-17' eh para tirar os 17 campos do mac
+
+        // Intent para voltar para a tela principal
+        Intent retornaMAC = new Intent();
+        retornaMAC.putExtra(MAC_ADDRESS,endMac);
+        setResult(RESULT_OK, retornaMAC);
+        finish();
+    }
 
 }

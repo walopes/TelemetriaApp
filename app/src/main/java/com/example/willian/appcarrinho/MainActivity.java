@@ -6,6 +6,8 @@ package com.example.willian.appcarrinho;
  * Este código será comentado tanto em Português quanto Inglês, devido a ser um trabalho de graduação.
  */
 
+import android.app.Activity;
+import android.app.Instrumentation;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private static final int REQUEST_CONNECTION = 2;
+    private static String MAC_Address = "";
 
     /**
      * VARIABLES OF THE PROGRAM
@@ -165,21 +168,38 @@ public class MainActivity extends AppCompatActivity {
         beginApp();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // Ou seja, se o codigo recebido foi positivo de encontrar outro dispositivo
+        if(requestCode == REQUEST_CONNECTION)
+        {
+            // Se o resultado foi OK ...
+            if(resultCode == Activity.RESULT_OK)
+            {
+                MAC_Address = data.getExtras().getString(DeviceList.MAC_ADDRESS);
+                Toast.makeText(MainActivity.this, "MAC final: " + MAC_Address, Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(MainActivity.this, "Falha ao obter MAC!", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+    }
 
 
-    private void beginApp()
-    {
+
+    private void beginApp() {
         // Association of the variables with the respectives widgets
-        botaoPareado = (Button)findViewById(R.id.botaoIniciar);
-        botaoDev = (Button)findViewById(R.id.botaoConectar);
-        listaDev = (ListView)findViewById(R.id.list_view);
+        botaoPareado = (Button) findViewById(R.id.botaoIniciar);
+        botaoDev = (Button) findViewById(R.id.botaoConectar);
+        listaDev = (ListView) findViewById(R.id.list_view);
         textTop = (TextView) findViewById(R.id.txt1);
 
-        if(EnglishLang == true){
+        if (EnglishLang == true) {
             botaoPareado.setText("Turn On/ Off");
             botaoDev.setText("Connect/ Disconnect");
-        }
-        else{
+        } else {
             botaoPareado.setText("Ligar/ Desligar");
             botaoDev.setText("Conectar/ Desconectar");
         }
@@ -193,8 +213,7 @@ public class MainActivity extends AppCompatActivity {
          */
         botaoPareado.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v)
-            {
+            public void onClick(View v) {
                 /**
                  * The variable meuBT receive the handle to the Bluetooth adapter of the Android Device.
                  * _____
@@ -204,8 +223,7 @@ public class MainActivity extends AppCompatActivity {
                 /**
                  * If meuBT is null, then it is avoided to use the Bluetooth Adapter.
                  */
-                if(meuBT == null)
-                {
+                if (meuBT == null) {
                     Toast.makeText(MainActivity.this, "Bluetooth cannot be used by this device! :(", Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -214,8 +232,7 @@ public class MainActivity extends AppCompatActivity {
                  * _____
                  * Se há um dispositivo Bluetooth ativa mas não habilitado, então é requisitado a habilitação deste adaptador.
                  */
-                if(!meuBT.isEnabled())
-                {
+                if (!meuBT.isEnabled()) {
                     /**
                      * An Intent is called to resquest to the user permission to Activate the Bluetooth Device. This is done to
                      * the user can Activate the Bluetooth without exiting the application.
@@ -231,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
                      * O IntentFilter é utilizado para monitorar mudanças no estado do Bluetooth.
                      */
                     IntentFilter IntF = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-                    registerReceiver(btState,IntF);
+                    registerReceiver(btState, IntF);
 //                    String nowState = BluetoothAdapter.EXTRA_STATE;
 //                    int state = LigaBT.getIntExtra(nowState, -1);
 //
@@ -260,187 +277,36 @@ public class MainActivity extends AppCompatActivity {
                  * _____
                  * Se o Bluetooth está habilitado, então isso irá desativá-lo.
                  */
-                if(meuBT.isEnabled())
-                {
+                if (meuBT.isEnabled()) {
                     meuBT.disable();
 
                     IntentFilter IntF = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-                    registerReceiver(btState,IntF);
+                    registerReceiver(btState, IntF);
                 }
             }
         });
 
 
         // Quando der tempo-> Fazer o Controle das mudanças com o IntentFilter
-        botaoDev.setOnClickListener(new View.OnClickListener(){
+        botaoDev.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
 
-                if(connection){ // If the device is already connected -> It will disconnect
+                if (connection) { // If the device is already connected -> It will disconnect
                     ;
-                }else{ // If no connection has been done -> It will connect
-                    Intent openList = new Intent(MainActivity.this,DeviceList.class);
-                    startActivityForResult(openList,REQUEST_CONNECTION);
+                } else { // If no connection has been done -> It will connect
+                    Intent openList = new Intent(MainActivity.this, DeviceList.class);
+                    startActivityForResult(openList, REQUEST_CONNECTION);
                 }
             }
         });
-    }
-
-//    private void devicesPaired()
-//    {
-//        Pareados = meuBT.getBondedDevices();
-//        ArrayList lista = new ArrayList();
-//
-//        Toast.makeText(MainActivity.this, "HAHAHA -> Chegou aqui\n", Toast.LENGTH_SHORT).show();
-//
-//        //meuBT.startDiscovery();
-//
-////        if(Pareados.size() > 0)
-////        {
-////
-////            //for(BluetoothDevice i : Pareados)
-////            for(BluetoothDevice i : filha da puta Pareados)
-////            {
-////                lista.add(i.getName() + "\n" + i.getAddress());
-////                // Nome do disopsitivo e endereco dele
-////            }
-////
-////        }
-////        else
-////        {
-////            Toast.makeText(getApplicationContext(), "Nenhum modulo bluetooth foi encontrado!",Toast.LENGTH_LONG).show();
-////        }
-//
-//
-//
-//    }
-
-//    public void parear(View v)
-//    {
-//
-//        if(meuBT.isDiscovering())
-//        {
-//            meuBT.cancelDiscovery();
-//
-//            // Check for permissions in manifest
-//            checkPermission();
-//
-//            meuBT.startDiscovery();
-//            IntentFilter findInt = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-//            registerReceiver(pairDev,findInt);
-//        }
-//        if(!meuBT.isDiscovering())
-//        {
-//            checkPermission();
-//
-//            meuBT.startDiscovery();
-//            IntentFilter findInt = new IntentFilter(BluetoothDevice.ACTION_FOUND);
-//            registerReceiver(pairDev,findInt);
-//        }
-//
-//
-//        Intent discoverableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE);
-//        discoverableIntent.putExtra(BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION, 300);
-//        startActivity(discoverableIntent);
-//    }
-
-    private void checkPermission()
-    {
-        // Se a versão do dispositivo é superior à 5.0 (Lollipop), é necessário adicionar permissões
-        if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP)
-        {
-            int permissionCheck = this.checkSelfPermission("Manifest.permission.ACCESS_FINE_LOCATION");
-            permissionCheck += this.checkSelfPermission("Manifest.permission.ACCESS_COARSE_LOCATION");
-            if(permissionCheck != 0) {
-                // VER MELHOR ESSE requestPermissions
-                this.requestPermissions(new String[]{
-                        android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION
-                    },1001);
-            }
-        }
-
-    }
 
 
-    private void devicesPaired()
-    {
 
-        textTop.setText("AEEEHOOOOOOOOOOOO");
-
-//        Pareados = meuBT.getBondedDevices();
-//        ArrayList lista = new ArrayList();
-//
-//        if(Pareados.size() > 0)
-//        {
-//
-//            for(BluetoothDevice i : Pareados)
-//            {
-//                lista.add(i.getName() + "\n" + i.getAddress());
-//                // Nome do disopsitivo e endereco dele
-//            }
-//
-//
-//        }
-//        else
-//        {
-//            Toast.makeText(getApplicationContext(), "Nenhum modulo bluetooth foi encontrado!",Toast.LENGTH_LONG).show();
-//        }
 
 
 
     }
-
-
-
-
-//        private void dispositivosPareados()
-//        {
-//            Pareados = meuBT.getBondedDevices();
-//            ArrayList lista = new ArrayList();
-//
-//            if(Pareados.size() > 0)
-//            {
-//                BluetoothDevice i;
-//                for(i : Pareados)
-//                {
-//                    lista.add(i.getName() + "\n" + i.getAddress());
-//                    // Nome do disopsitivo e endereco dele
-//                }
-//
-//            }
-//            else
-//            {
-//                Toast.makeText(getApplicationContext(), "Nenhum modulo bluetooth foi encontrado!",Toast.LENGTH_LONG).show();
-//            }
-//            final ArrayAdapter ap = new ArrayAdapter(this,android.R.layout.simple_list_item_1,lista);
-//
-//            listaDev.setAdapter(ap);
-//
-//            listaDev.setAdapter(ap);
-//            listaDev.setOnItemClickListener(myListClickListener); //Method called when the device from the list is clicked
-//
-//        }
-
-
-
-//
-//        // Verificar melhor essa parte
-//        private AdapterView.OnItemClickListener myListClickListener = new AdapterView.OnItemClickListener()
-//        {
-//            public void onItemClick (AdapterView av, View v, int arg2, long arg3)
-//            {
-//                // Get the device MAC address, the last 17 chars in the View
-//                String info = ((TextView) v).getText().toString();
-//                String address = info.substring(info.length() - 17);
-//                // Make an intent to start next activity.
-//                Intent i = new Intent(listaDev.this, ledControl.class);
-//                //Change the activity.
-//                i.putExtra(EXTRA_ADDRESS, address); //this will be received at ledControl (class) Activity
-//                startActivity(i);
-//            }
-//        };
-
-
 
 }
