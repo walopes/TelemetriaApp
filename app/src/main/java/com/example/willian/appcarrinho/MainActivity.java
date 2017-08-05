@@ -8,6 +8,7 @@ package com.example.willian.appcarrinho;
 
 import android.app.Activity;
 import android.app.Instrumentation;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.IntentFilter;
@@ -20,8 +21,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 // novo abaixo
+import java.io.IOException;
 import java.util.Set;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.jar.Manifest;
 
 import android.widget.Switch;
@@ -46,7 +49,10 @@ public class MainActivity extends AppCompatActivity {
      */
 
     private static final int REQUEST_CONNECTION = 2;
+    private static final int DISCOVER_DEVICE_TAG = 7;
+
     private static String MAC_Address = "";
+    UUID commUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     /**
      * VARIABLES OF THE PROGRAM
@@ -54,14 +60,15 @@ public class MainActivity extends AppCompatActivity {
     private final boolean EnglishLang = true;
     private boolean connection = false;
 
-    public Button botaoPareado, botaoDev;
+    public Button botaoPareado, botaoDev, botaoDisc;
     public ListView listaDev;
     public TextView textTop;
     public ArrayList<BluetoothDevice> devBT = new ArrayList<>();
     public DeviceList mDev;
 
     private BluetoothAdapter meuBT = null;
-    public Set<BluetoothDevice> Pareados = null;
+    private BluetoothDevice meuDev = null;
+    private BluetoothSocket meuSocket = null;
 
 
 
@@ -179,7 +186,19 @@ public class MainActivity extends AppCompatActivity {
             if(resultCode == Activity.RESULT_OK)
             {
                 MAC_Address = data.getExtras().getString(DeviceList.MAC_ADDRESS);
-                Toast.makeText(MainActivity.this, "MAC final: " + MAC_Address, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MainActivity.this, "MAC final: " + MAC_Address, Toast.LENGTH_SHORT).show();
+                meuDev = meuBT.getRemoteDevice(MAC_Address);
+
+                try{
+
+                    meuSocket = meuDev.createRfcommSocketToServiceRecord(commUUID);
+                    meuSocket.connect();
+                    Toast.makeText(MainActivity.this, "Conectado com " + MAC_Address, Toast.LENGTH_SHORT).show();
+
+                }catch(IOException e){
+                    Toast.makeText(MainActivity.this, "Nao foi possivel se conectar. Erro: " + e, Toast.LENGTH_SHORT).show();
+                }
+
             }else{
                 Toast.makeText(MainActivity.this, "Falha ao obter MAC!", Toast.LENGTH_SHORT).show();
             }
@@ -193,15 +212,18 @@ public class MainActivity extends AppCompatActivity {
         // Association of the variables with the respectives widgets
         botaoPareado = (Button) findViewById(R.id.botaoIniciar);
         botaoDev = (Button) findViewById(R.id.botaoConectar);
+        botaoDisc = (Button) findViewById(R.id.botaoDescobrir);
         listaDev = (ListView) findViewById(R.id.list_view);
         textTop = (TextView) findViewById(R.id.txt1);
 
         if (EnglishLang == true) {
             botaoPareado.setText("Turn On/ Off");
-            botaoDev.setText("Connect/ Disconnect");
+            botaoDev.setText("Paired Devices");
+            botaoDisc.setText("Find new Devices");
         } else {
             botaoPareado.setText("Ligar/ Desligar");
-            botaoDev.setText("Conectar/ Desconectar");
+            botaoDev.setText("Dispositivos pareados");
+            botaoDisc.setText("Descobrir novos dispositivos");
         }
 
         //// REVER ESSE CASO
@@ -280,6 +302,13 @@ public class MainActivity extends AppCompatActivity {
                 if (meuBT.isEnabled()) {
                     meuBT.disable();
 
+                    try{
+                        meuSocket.close();
+                        Toast.makeText(MainActivity.this, "Bluetooth Desconectado", Toast.LENGTH_SHORT).show();
+                    }catch (IOException e){
+                        Toast.makeText(MainActivity.this, "Erro:" + e, Toast.LENGTH_SHORT).show();
+                    }
+
                     IntentFilter IntF = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
                     registerReceiver(btState, IntF);
                 }
@@ -288,25 +317,35 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Quando der tempo-> Fazer o Controle das mudanças com o IntentFilter
-        botaoDev.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-
-                if (connection) { // If the device is already connected -> It will disconnect
-                    ;
-                } else { // If no connection has been done -> It will connect
-                    Intent openList = new Intent(MainActivity.this, DeviceList.class);
-                    startActivityForResult(openList, REQUEST_CONNECTION);
-                }
-            }
-        });
-
-
-
-
-
+        /**
+         * Deixar no stand by por enquanto
+         */
+//        botaoDev.setOnClickListener(new View.OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//
+//                if (connection) { // If the device is already connected -> It will disconnect
+//                    ;
+//                } else { // If no connection has been done -> It will connect
+//                    Intent openList = new Intent(MainActivity.this, DeviceList.class);
+//                    startActivityForResult(openList, REQUEST_CONNECTION);
+//                }
+//            }
+//        });
 
     }
+
+    /**
+     * NOT WORKING.
+     * FOR NOW, IT WILL ONLY WORK WITH PAIRED DEVICES
+     *
+     */
+    // This function is related to the button which will discover new devices
+//    public void discoverDevices()
+//    {
+//        Intent toSearchNewDev = new Intent(this,DiscoveryDevices.class);
+//        startActivityForResult(toSearchNewDev,DISCOVER_DEVICE_TAG);
+//    }
 
 }
